@@ -1,0 +1,17 @@
+{
+  "name": "simple-and-effectife-e2e-test-architecture",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/mcp": "^0.0.20",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^20.14.10"
+  }
+}
