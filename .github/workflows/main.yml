@@ -1,0 +1,14 @@
+name: Main Workflow
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  precondition:
+    uses: ./.github/workflows/precondition.yml
+
+  e2e:
+    needs: [precondition]
+    uses: ./.github/workflows/e2e-with-changes.yml

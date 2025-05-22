@@ -1,7 +1,7 @@
 import { test } from '../../src/test';
 
-test.describe('Google page (RU)', () => {
-  test('Проверка наличия сервисов в сэндвич-баре', async ({ ui }) => {
+  // test('Проверка наличия сервисов в сэндвич-баре', { tag: '@apps/google' }, async ({ ui }) => {
+    test('Проверка наличия сервисов в сэндвич-баре', async ({ ui }) => {
     await ui.google.goto();
     await ui.google.openAppsMenu();
 
@@ -12,4 +12,3 @@ test.describe('Google page (RU)', () => {
     await ui.google.assertServiceVisible('Карты');
     await ui.google.assertServiceVisible('Почта');
   });
-});
