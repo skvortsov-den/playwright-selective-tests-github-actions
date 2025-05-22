@@ -1,7 +1,7 @@
 import { test } from '../../src/test';
 
-  // test('Проверка наличия сервисов в сэндвич-баре', { tag: '@apps/google' }, async ({ ui }) => {
-    test('Проверка наличия сервисов в сэндвич-баре', async ({ ui }) => {
+  test('Проверка наличия сервисов в сэндвич-баре', { tag: '@apps/microservice1' }, async ({ ui }) => {
+    // test('Проверка наличия сервисов в сэндвич-баре', async ({ ui }) => {
     await ui.google.goto();
     await ui.google.openAppsMenu();
 
