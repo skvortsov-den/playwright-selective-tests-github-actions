@@ -1,18 +1,21 @@
-name: Setup Dependencies
+name: Precondition
 
 on:
   workflow_call:
 
 jobs:
-  setup:
+  install:
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.52.0
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+      
       - name: Install dependencies
-        run: npm ci 
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium 
