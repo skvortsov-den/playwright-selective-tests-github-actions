@@ -56,21 +56,8 @@ jobs:
           echo "Final test scope: ${RESULT:-empty (will run all tests)}"
           echo "test_scope=$RESULT" >> $GITHUB_OUTPUT
 
-  setup:
-    runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.52.0
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-
   all-tests:
-    needs: [detect-changes, setup]
+    needs: detect-changes
     if: needs.detect-changes.outputs.test_scope == ''
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -78,11 +65,12 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.52.0
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/preconditions/e2e
       - name: Run all tests
         run: npx playwright test
 
   selective-tests:
-    needs: [detect-changes, setup]
+    needs: detect-changes
     if: needs.detect-changes.outputs.test_scope != ''
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -90,5 +78,6 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.52.0
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/preconditions/e2e
       - name: Run selective tests
         run: npx playwright test --grep "@${{ needs.detect-changes.outputs.test_scope }}" 
