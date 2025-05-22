@@ -1,4 +1,5 @@
 export const microservice1 = {
   name: 'microservice1',
-  type: 'frontend'
+  type: 'frontend',
+  version: '1.0.0'
 }; 
