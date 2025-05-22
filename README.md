@@ -1,3 +1,10 @@
+# Test Monorepo
+
+This is a test monorepo structure with:
+- Frontend microservices
+- Backend microservices
+- E2E tests
+
 # Simple and Effective E2E Test Architecture with Playwright and TypeScript
 
 This repository demonstrates a simple yet effective structure for E2E testing using Playwright and TypeScript.
