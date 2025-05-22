@@ -1,6 +1,8 @@
 name: Main Workflow
 
 on:
+  push:
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
     types: [opened, synchronize, reopened]
@@ -12,3 +14,5 @@ jobs:
   e2e:
     needs: [precondition]
     uses: ./.github/workflows/e2e-with-changes.yml
+    with:
+      pr_sha: ${{ github.sha }}
