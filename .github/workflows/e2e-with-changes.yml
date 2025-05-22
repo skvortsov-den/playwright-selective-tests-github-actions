@@ -1,0 +1,76 @@
+name: E2E Tests with Changes Detection
+
+on:
+  workflow_call:
+    inputs:
+      pr_sha:
+        required: true
+        type: string
+        description: "SHA коммита для проверки изменений"
+    outputs:
+      test_scope:
+        description: "Comma-separated list of changed services, empty if no matches found"
+        value: ${{ jobs.detect-changes.outputs.test_scope }}
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      test_scope: ${{ steps.detect.outputs.test_scope }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze changes
+        id: detect
+        run: |
+          echo "=== Step 1: Scanning repository ==="
+          echo "Looking for all paths starting with apps/"
+          ALL_PATHS=$(find . -type f -path "./apps/*" | sed 's|^./||')
+          echo "Found paths:"
+          echo "$ALL_PATHS"
+          
+          echo "=== Step 2: Extracting unique service paths ==="
+          SERVICES=$(echo "$ALL_PATHS" | grep "^apps/" | cut -d'/' -f2 | sort -u)
+          echo "Detected services:"
+          echo "$SERVICES"
+
+          echo "=== Step 3: Getting changed files ==="
+          echo "Using PR SHA: ${{ inputs.pr_sha }}"
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ inputs.pr_sha }})
+          echo "All changed files:"
+          echo "$CHANGED_FILES"
+          
+          echo "=== Step 4: Matching changes with services ==="
+          MATCHES=""
+          for service in $SERVICES; do
+            if echo "$CHANGED_FILES" | grep -q "^apps/$service/"; then
+              echo "Found changes in service: $service"
+              MATCHES="$MATCHES $service"
+            fi
+          done
+
+          echo "=== Step 5: Preparing result ==="
+          RESULT=${MATCHES## }
+          RESULT=${RESULT// /,}
+          echo "Final test scope: ${RESULT:-empty (will run all tests)}"
+          echo "test_scope=$RESULT" >> $GITHUB_OUTPUT
+
+  all-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.test_scope == ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run all tests
+        run: npx playwright test
+
+  selective-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.test_scope != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run service tests
+        run: npx playwright test --grep "${{ needs.detect-changes.outputs.test_scope }}" 
