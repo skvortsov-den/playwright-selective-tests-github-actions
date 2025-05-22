@@ -26,13 +26,13 @@ jobs:
         id: detect
         run: |
           echo "=== Step 1: Scanning repository ==="
-          echo "Looking for all paths starting with apps/"
-          ALL_PATHS=$(find . -type f -path "./apps/*" | sed 's|^./||')
+          echo "Looking for all paths in frontend/apps/ and backend/apps/"
+          ALL_PATHS=$(find . -type f \( -path "./frontend/apps/*" -o -path "./backend/apps/*" \) | sed 's|^./||')
           echo "Found paths:"
           echo "$ALL_PATHS"
           
           echo "=== Step 2: Extracting unique service paths ==="
-          SERVICES=$(echo "$ALL_PATHS" | grep "^apps/" | cut -d'/' -f2 | sort -u)
+          SERVICES=$(echo "$ALL_PATHS" | grep -E "^(frontend|backend)/apps/" | cut -d'/' -f3 | sort -u)
           echo "Detected services:"
           echo "$SERVICES"
 
@@ -45,7 +45,7 @@ jobs:
           echo "=== Step 4: Matching changes with services ==="
           MATCHES=""
           for service in $SERVICES; do
-            if echo "$CHANGED_FILES" | grep -q "^apps/$service/"; then
+            if echo "$CHANGED_FILES" | grep -qE "^(frontend|backend)/apps/$service/"; then
               echo "Found changes in service: $service"
               MATCHES="$MATCHES $service"
             fi
@@ -73,4 +73,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run service tests
-        run: npx playwright test --grep "${{ needs.detect-changes.outputs.test_scope }}" 
+        run: npx playwright test --grep "@${{ needs.detect-changes.outputs.test_scope }}" 
