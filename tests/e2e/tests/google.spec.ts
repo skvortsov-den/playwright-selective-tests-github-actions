@@ -1,7 +1,7 @@
-import { test } from '../../src/test';
+import { test } from '../src/test';
 
+test.describe('Google page (RU)', () => {
   test('Проверка наличия сервисов в сэндвич-баре', { tag: '@apps/microservice1' }, async ({ ui }) => {
-    // test('Проверка наличия сервисов в сэндвич-баре', async ({ ui }) => {
     await ui.google.goto();
     await ui.google.openAppsMenu();
 
@@ -12,3 +12,4 @@ import { test } from '../../src/test';
     await ui.google.assertServiceVisible('Карты');
     await ui.google.assertServiceVisible('Почта');
   });
+});
