@@ -1,0 +1,79 @@
+name: E2E Tests
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      test_scope: ${{ steps.scope.outputs.test_scope }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find changes
+        id: changes
+        run: |
+          echo "🔄  Analyzing changes in PR..."
+          echo "📝 Changed files:"
+          changed_apps=$(git diff --name-only origin/main HEAD | grep -E "/apps/[^/]+/" || true)
+          echo "$changed_apps" | sed 's/^/  /'
+          
+          echo "✨ Affected services:"
+          test_paths=$(echo "$changed_apps" | sed -E 's#^(.*/apps/[^/]+)/.*#\1#' | sort -u | paste -sd "|" -)
+          [ -z "$test_paths" ] && echo " No changes in services" || echo "$test_paths" | tr '|' '\n' | sed 's/^/  /'
+          
+          echo "test_paths=${test_paths}" >> $GITHUB_OUTPUT
+
+      - name: Check shared modules
+        id: shared
+        run: |
+          test_paths="${{ steps.changes.outputs.test_paths }}"
+          
+          echo "🔄 Checking shared modules:"
+          echo "$test_paths" | tr '|' '\n' | grep -q "shared" && {
+            echo "⚠️ Changes in common modules:"
+            echo "$test_paths" | tr '|' '\n' | grep "shared" | sed 's/^/  /'
+            test_paths=""
+          } || echo "✅ No changes in common modules"
+          
+          echo "test_paths=$test_paths" >> $GITHUB_OUTPUT
+
+      - name: Set final scope
+        id: scope
+        run: |
+          test_paths="${{ steps.shared.outputs.test_paths }}"
+          echo "🔄 Result:"
+          [ -z "$test_paths" ] && echo " ✅ All tests will be run" || {
+            echo " ✅ Running tests for:"
+            echo "$test_paths" | tr '|' '\n' | sed 's/^/    /'
+          }
+          echo "test_scope=$test_paths" >> $GITHUB_OUTPUT
+
+  selective-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.test_scope != ''
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/preconditions/e2e
+      - name: Run selective tests
+        run: npx playwright test --grep "${{ needs.detect-changes.outputs.test_scope }}" 
+
+  all-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.test_scope == ''
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/preconditions/e2e
+      - name: Run all tests
+        run: npx playwright test
