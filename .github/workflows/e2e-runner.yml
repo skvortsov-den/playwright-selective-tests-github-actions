@@ -17,18 +17,19 @@ jobs:
         id: changes
         run: |
           echo "🔄  Analyzing changes in PR..."
+          
           changed_apps=$(git diff --name-only origin/main HEAD | grep -E "/apps/[^/]+/" || true)
           changed_test_files=$(git diff --name-only origin/main HEAD | grep -E "^tests/e2e/" || true)
           
           echo "📦 Files changed:"
-          echo "$changed_apps" | sed 's/^/  /'
+          [ -z "$changed_apps" ] && echo "  No changes in services" || echo "$changed_apps" | sed 's/^/  /'
           
           echo "🧪 E2E Tests:"
-          echo "$changed_test_files" | sed 's/^/  /'
+          [ -z "$changed_test_files" ] && echo "  No changes in e2e tests" || echo "$changed_test_files" | sed 's/^/  /'
           
           echo "✨ Affected services:"
           full_paths=$(echo "$changed_apps" | sed -E 's#^(.*/apps/[^/]+)/.*#\1#' | sort -u | paste -sd "|" -)
-          [ -z "$full_paths" ] && echo " No changes in services" || echo "$full_paths" | tr '|' '\n' | sed 's/^/  /'
+          [ -z "$full_paths" ] && echo "  No changes in services" || echo "$full_paths" | tr '|' '\n' | sed 's/^/  /'
           
           test_paths=$(echo "$full_paths" | tr '|' '\n' | sed -E 's#.*(apps/[^/]+)#\1#' | paste -sd "|" -)
           test_files=$(echo "$changed_test_files" | paste -sd "|" -)
