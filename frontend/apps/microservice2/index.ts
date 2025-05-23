@@ -6,22 +6,6 @@ export const microservice2 = {
     {
       name: 'YouTube',
       url: 'https://www.youtube.com',
-    },
-    {
-      name: 'Youtube Music',
-      url: 'https://music.youtube.com',
-    },
-    {
-      name: 'Drive',
-      url: 'https://drive.google.com',
-    },
-    {
-      name: 'Calendar',
-      url: 'https://calendar.google.com',
-    },
-    {
-      name: 'Maps',
-      url: 'https://maps.google.com',
     }
   ]
 };
