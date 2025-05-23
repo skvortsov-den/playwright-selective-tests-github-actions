@@ -1,10 +1,10 @@
 import { test as base } from '@playwright/test';
-import { OrdersApi } from './api/ordersApi';
+import { ExampleApi } from './api/exampleApi';
 import { GoogleUi } from './ui/googleUi';
 
 export const apiUiFixtures = base.extend<{
   api: {
-    orders: OrdersApi;
+    example: ExampleApi;
   };
   ui: {
     google: GoogleUi;
@@ -12,7 +12,7 @@ export const apiUiFixtures = base.extend<{
 }>({
   api: async ({ request }, use) => {
     await use({
-      orders: new OrdersApi(request),
+      example: new ExampleApi(request),
     });
   },
   ui: async ({ page }, use) => {
