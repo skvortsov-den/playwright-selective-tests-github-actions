@@ -22,9 +22,9 @@ jobs:
           changed_test_files=$(git diff --name-only origin/main HEAD | grep -E "^tests/e2e/" || true)
           
           echo "📦 Files changed:"
-          [ -z "$changed_apps" ] && echo "  No changes in services" || echo "$changed_apps" | sed 's/^/  /'
+          [ -z "$changed_apps" ] && echo "  No changes in files" || echo "$changed_apps" | sed 's/^/  /'
           
-          echo "🧪 E2E Tests:"
+          echo "🧪 E2E tests:"
           [ -z "$changed_test_files" ] && echo "  No changes in e2e tests" || echo "$changed_test_files" | sed 's/^/  /'
           
           echo "✨ Affected services:"
