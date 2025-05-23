@@ -5,6 +5,8 @@ export const microservice1 = {
   features: {
     darkMode: true,
     notifications: true,
-    analytics: true
+    analytics: true,
+    i18n: true,
+    e2e: true
   }
-}; 
+};
