@@ -6,7 +6,6 @@ export const microservice1 = {
     darkMode: true,
     notifications: true,
     analytics: true,
-    i18n: true,
-    e2e: true
+    i18n: true
   }
 };
