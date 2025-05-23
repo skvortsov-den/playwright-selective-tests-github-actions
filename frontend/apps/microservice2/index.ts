@@ -12,15 +12,15 @@ export const microservice2 = {
       url: 'https://music.youtube.com',
     },
     {
-      name: 'Диск',
+      name: 'Drive',
       url: 'https://drive.google.com',
     },
     {
-      name: 'Календарь',
+      name: 'Calendar',
       url: 'https://calendar.google.com',
     },
     {
-      name: 'Карты',
+      name: 'Maps',
       url: 'https://maps.google.com',
     }
   ]

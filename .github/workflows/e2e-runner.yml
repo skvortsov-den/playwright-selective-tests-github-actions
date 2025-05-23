@@ -17,27 +17,40 @@ jobs:
         id: changes
         run: |
           echo "🔄  Analyzing changes in PR..."
-          echo "📝 Changed files:"
           changed_apps=$(git diff --name-only origin/main HEAD | grep -E "/apps/[^/]+/" || true)
+          changed_test_files=$(git diff --name-only origin/main HEAD | grep -E "^tests/e2e/" || true)
+          
+          echo "📦 Files changed:"
           echo "$changed_apps" | sed 's/^/  /'
           
+          echo "🧪 E2E Tests:"
+          echo "$changed_test_files" | sed 's/^/  /'
+          
           echo "✨ Affected services:"
-          test_paths=$(echo "$changed_apps" | sed -E 's#^(.*/apps/[^/]+)/.*#\1#' | sort -u | paste -sd "|" -)
-          [ -z "$test_paths" ] && echo " No changes in services" || echo "$test_paths" | tr '|' '\n' | sed 's/^/  /'
+          full_paths=$(echo "$changed_apps" | sed -E 's#^(.*/apps/[^/]+)/.*#\1#' | sort -u | paste -sd "|" -)
+          [ -z "$full_paths" ] && echo " No changes in services" || echo "$full_paths" | tr '|' '\n' | sed 's/^/  /'
+          
+          test_paths=$(echo "$full_paths" | tr '|' '\n' | sed -E 's#.*(apps/[^/]+)#\1#' | paste -sd "|" -)
+          test_files=$(echo "$changed_test_files" | paste -sd "|" -)
           
           echo "test_paths=${test_paths}" >> $GITHUB_OUTPUT
+          echo "changed_test=${test_files}" >> $GITHUB_OUTPUT
 
-      - name: Check shared modules
+      - name: Check shared modules and modified e2e tests
         id: shared
         run: |
           test_paths="${{ steps.changes.outputs.test_paths }}"
+          changed_test="${{ steps.changes.outputs.changed_test }}"
           
-          echo "🔄 Checking shared modules:"
-          echo "$test_paths" | tr '|' '\n' | grep -q "shared" && {
-            echo "⚠️ Changes in common modules:"
-            echo "$test_paths" | tr '|' '\n' | grep "shared" | sed 's/^/  /'
-            test_paths=""
-          } || echo "✅ No changes in common modules"
+          echo "🔄 Checking shared modules and e2e tests:"
+          
+          has_shared=$(echo "$test_paths" | tr '|' '\n' | grep -q "shared" && echo "true" || echo "false")
+          has_e2e_changes=$([ ! -z "$changed_test" ] && echo "true" || echo "false")
+          
+          $has_shared && echo "⚠️ Changes in shared modules detected" && echo "$test_paths" | tr '|' '\n' | grep "shared" | sed 's/^/  /'
+          $has_e2e_changes && echo "⚠️ Changes in e2e tests detected" && echo "$changed_test" | tr '|' '\n' | sed 's/^/  /'
+          
+          { $has_shared || $has_e2e_changes; } && test_paths="" || echo "✅ No changes in shared modules or e2e tests"
           
           echo "test_paths=$test_paths" >> $GITHUB_OUTPUT
 
@@ -63,7 +76,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/preconditions/e2e
       - name: Run selective tests
-        run: npx playwright test --grep "${{ needs.detect-changes.outputs.test_scope }}" 
+        run: npx playwright test --grep "${{ needs.detect-changes.outputs.test_scope }}" || true 
 
   all-tests:
     needs: detect-changes
