@@ -2,12 +2,11 @@
 
 This repository demonstrates an example of a GitHub Action for selective running of e2e tests in a monorepo based on changed files in PR.
 
-For a detailed description of the mechanism, check out the article [Selective test execution mechanism with Playwright using GitHub Actions](https://dev.to/denis_skvortsov/selective-test-execution-mechanism-with-playwright-using-github-actions-32dp-temp-slug-6919438).
+For a detailed description of the mechanism, check out the article [Selective test execution mechanism with Playwright using GitHub Actions](https://dev.to/denis_skvortsov/selective-test-execution-mechanism-with-playwright-using-github-actions-862).
 
 ## Project Structure
 
 ```
-/
 ├── frontend/            # Frontend applications
 │   └── apps/            # Frontend microservices
 │       ├── microservice1/
