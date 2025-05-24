@@ -35,7 +35,6 @@ For a detailed description of the mechanism, check out the article [Selective te
 
 The project uses Playwright for e2e testing. The example includes:
 - Docker container with pre-installed Playwright (`mcr.microsoft.com/playwright:v1.52.0`)
-- 6 minutes timeout for demonstration purposes
 
 ## GitHub Action for Selective Test Running
 
