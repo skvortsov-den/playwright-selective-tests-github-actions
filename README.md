@@ -1,4 +1,4 @@
-# playwright-selective-tests-github-actions
+# Selective test execution mechanism with Playwright using GitHub Actions
 
 This repository demonstrates an example of a GitHub Action for selective running of e2e tests in a monorepo based on changed files in PR.
 
@@ -11,6 +11,7 @@ For a detailed description of the mechanism, check out the article [Selective te
 │   └── apps/            # Frontend microservices
 │       ├── microservice1/
 │       └── microservice2/
+│       └── shared/     # Common frontend components
 ├── backend/            # Backend services
 │   └── apps/           # Backend microservices
 │       ├── microservice3/
